@@ -1,4 +1,4 @@
-package concepts.control_flow.loops.`for`
+package concepts.control_flow.loops.for_loop
 
 /*
 fun main() {

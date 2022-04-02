@@ -1,4 +1,4 @@
-package basics.basic_syntax.type_checks_and_automatic_casts
+package concepts.types.type_checks_and_casts
 
 fun main() {
     fun printLength(obj: Any) {

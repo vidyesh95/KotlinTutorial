@@ -1,4 +1,4 @@
-package concepts.control_flow.loops.do_while
+package concepts.control_flow.loops.do_while_loop
 
 fun main() {
     var i = 1

@@ -1,4 +1,4 @@
-package concepts.control_flow.loops.labelled_continue
+package concepts.control_flow.loops.jumps.labelled_continue
 
 /* Kotlin program demonstrating use of labelled continue.*/
 fun main() {

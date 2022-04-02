@@ -1,4 +1,4 @@
-package concepts.control_flow.loops.unlabelled_break
+package concepts.control_flow.loops.jumps.unlabelled_break
 
 /* Kotlin program demonstrating use of unlabelled break.*/
 fun main() {

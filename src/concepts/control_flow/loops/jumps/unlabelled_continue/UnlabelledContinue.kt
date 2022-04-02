@@ -1,4 +1,4 @@
-package concepts.control_flow.loops.unlabelled_continue
+package concepts.control_flow.loops.jumps.unlabelled_continue
 
 /* Kotlin program demonstrating use of unlabelled continue.*/
 fun main() {
