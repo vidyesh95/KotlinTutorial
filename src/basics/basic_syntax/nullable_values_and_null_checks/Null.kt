@@ -7,7 +7,7 @@ fun main(args: Array<String>) {
     println(s?.get(0))
 }*/
 
-fun main() {
+/*fun main() {
     printProduct("6", "7")
     printProduct("6", "")
     printProduct("a", "7")
@@ -35,4 +35,17 @@ fun printProduct(arg1: String, arg2: String) {
     }
 
     println(x * y)
+}*/
+fun nullable(nullableString: String?, default: Int): Int {
+    return if (nullableString?.length == 0) {
+        default
+    } else {
+        nullableString?.length!! // !! is called the 'not-null assertion operator'
+    }
+}
+
+fun main(args: Array<String>) {
+    val str = readlnOrNull()
+    val result = -1
+    println(nullable(str, result))
 }
