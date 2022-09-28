@@ -4,9 +4,14 @@ fun main() {
     val a: Int = 1
     val b: Long = a.toLong()
     val c: String = b.toString()
-    val d: Int = c.toInt()
+    val d: Double = c.toDouble()
     val e: Char = b.toInt().toChar()
-    println(a)
+    println("$a is ${a::class.simpleName}")
+    println("$b is ${b::class.simpleName}")
+    println("$c is ${c::class.simpleName}")
+    println("$d is ${d::class.simpleName}")
+    println("$e is ${e::class.simpleName}")
+    /*println(a)
     println(b)
     println(c)
     println(d)
@@ -20,5 +25,6 @@ fun main() {
         else -> { // Note the block
             print("c is neither Float nor Double")
         }
-    }
+    }*/
+
 }
