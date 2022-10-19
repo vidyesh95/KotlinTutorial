@@ -1,7 +1,5 @@
 package concepts.classes_and_objects.classes
 
-import kotlin.reflect.KProperty
-
 /**
  * Properties : Properties in Kotlin classes can be declared either as mutable, using the var keyword, or as read-only,
  * using the val keyword.
@@ -32,10 +30,6 @@ import kotlin.reflect.KProperty
 /**
  * Late initialized properties and variables :
  */
-
-/**
- * Delegated properties : Delegation is passing responsibilities to other objects.
- */
 const val SUBSYSTEM_DEPRECATED: String = "This subsystem is deprecated"
 
 lateinit var properties: Properties
@@ -50,11 +44,6 @@ fun main() {
     properties.line = "Main line"
     println("$SUBSYSTEM_DEPRECATED on ${properties.line} and ${properties.lineIn}")
     println("Validity : ${properties.validity}")
-
-    val student = Student()
-    student.firstName = "Vidyesh"
-    student.lastName = "Churi"
-    println(student)
 }
 
 class Properties {
@@ -94,36 +83,6 @@ class Properties {
         set(value) {
             _validity = value
         }
-}
-
-class Student {
-    var firstName: String? = null
-        set(value) {
-            if (value != null && value.length > 1)
-                field = value.trim()
-        } // Using setter
-    var lastName: String? by NameDelegate() // Using delegate property
-
-    override fun toString(): String {
-        return "$firstName $lastName"
-    }
-}
-
-class NameDelegate {
-    var formattedValue: String? = null
-
-    operator fun setValue( //operator overloading of setValue
-        thisReference: Any?, //calling object of type Any?
-        property: KProperty<*>,
-        value: String?
-    ) {
-        if (value != null && value.length > 1)
-            formattedValue = value.trim()
-    }
-
-    operator fun getValue(thisReference: Any?, property: KProperty<*>): String? {
-        return formattedValue
-    }
 }
 
 
