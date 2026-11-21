@@ -24,6 +24,12 @@ tasks.test {
     useJUnitPlatform {
         excludeTags("exercise")
     }
+    // `-PlessonFilter=lesson23` -> LessonOutputTest only checks lessons whose package contains "lesson23".
+    systemProperty("lessonFilter", providers.gradleProperty("lessonFilter").getOrElse(""))
+    testLogging {
+        events("failed")
+        exceptionFormat = TestExceptionFormat.FULL
+    }
 }
 
 // `./gradlew :01-kotlin-language:exercises` -> only tests tagged "exercise" (your homework).

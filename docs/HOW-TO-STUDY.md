@@ -53,18 +53,30 @@ Workflow per lesson:
 
 ## 4. Exercises
 
+Every lesson `NN` has an exercise:
+
 ```
-src/main/kotlin/exercises/ex12/Ex12.kt     <- functions with TODO() bodies: YOU fill them in
-src/main/kotlin/solutions/ex12/Ex12.kt     <- reference answers (peek only after trying!)
-src/test/kotlin/.../Ex12Test.kt            <- tests that check both
+src/main/kotlin/exercises/exNN/ExNN.kt     <- interface ExNN + object ExNNExercise with TODO() bodies: YOU fill them in
+src/main/kotlin/solutions/exNN/ExNN.kt     <- object ExNNSolution: reference answers (peek only after trying!)
+src/test/kotlin/exercises/exNN/ExNNTest.kt <- one abstract spec, run against BOTH objects
 ```
 
 ```bash
-./gradlew :01-kotlin-language:exercises   # checks your answers (fails until you solve them — that's expected)
-./gradlew build                           # checks the reference solutions, always green
+./gradlew :01-kotlin-language:exercises                          # checks your answers (red until solved — expected)
+./gradlew :01-kotlin-language:exercises --tests 'exercises.ex23*' # just one exercise
+./gradlew build                                                  # checks the reference solutions, always green
 ```
 
-## 5. Tips
+The test file runs the same checks against `ExNNExercise` (tagged `exercise`) and `ExNNSolution`.
+That "one test, swappable implementation" trick is dependency injection — module 02 explains it properly.
+
+## 5. The lessons are tested too
+
+`LessonOutputTest` runs every lesson's `main()` and compares stdout with the `// Output:` block at the
+bottom of the file. So the output shown in a lesson is guaranteed to be real. When you edit a lesson to
+experiment, that test will (rightly) fail until you update the block — or just `git checkout` the file.
+
+## 6. Tips
 
 - Type the code yourself instead of only reading — your fingers learn too.
 - When a concept feels hard, read its 🧒 box again, then the code, then the box again.

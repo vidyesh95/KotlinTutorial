@@ -1,0 +1,252 @@
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ *  Lesson 35 — Testing your Kotlin code
+ * ═══════════════════════════════════════════════════════════════════════════
+ *  Goal : understand what a unit test is, write tests with kotlin.test,
+ *         replace dependencies with fakes, test errors and coroutines.
+ *  Needs: lessons 16 (interfaces), 30–32 (coroutines, Clock)
+ *  Time : ~40 min
+ *  Next : module 02 — Dependency Injection (it builds on §5 and §8 here!)
+ *  Exercises: exercises/ex35/Ex35.kt
+ *
+ *  Two files belong to this lesson:
+ *   • this file (src/main)       — the code under test + "tests by hand" so you see the idea
+ *   • src/test/kotlin/lesson35_testing/PriceAndBookServiceTest.kt — the REAL tests. Run them:
+ *       ./gradlew :01-kotlin-language:test --tests 'lesson35_testing.*'
+ *     or click the green ▶ next to the class in IntelliJ.
+ */
+package lesson35_testing
+
+import kotlin.time.Clock
+import kotlin.time.Instant
+
+fun main() {
+    section1WhyTest()
+    section2TestByHand()
+    section3Anatomy()
+    section4Fakes()
+    section5TestingErrors()
+    section6TableDriven()
+    section7Coroutines()
+    section8HowExercisesWork()
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §1. Why test?
+// ───────────────────────────────────────────────────────────────────────────
+// 🧒 Like I'm 5:
+//    A test is a little robot that checks your homework EVERY time you change
+//    it. You fix one sum and accidentally break another? The robot shouts
+//    within seconds — long before your teacher (or your users) notice.
+//
+// A unit test calls ONE piece of code with known input and checks the output.
+// Fast (milliseconds), no network, no real database, same result every run.
+
+fun section1WhyTest() {
+    println("§1")
+    println("tests are executable examples that never go out of date")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §2. A test is just "call it, compare it" — by hand
+// ───────────────────────────────────────────────────────────────────────────
+// Here's the code we want to test: a price calculator.
+
+data class Item(val name: String, val priceInCents: Long, val quantity: Int = 1)
+
+object PriceCalculator {
+    fun total(items: List<Item>, discountPercent: Int = 0): Long {
+        require(discountPercent in 0..100) { "discount must be 0..100, was $discountPercent" }
+        val sum = items.sumOf { it.priceInCents * it.quantity }
+        return sum - sum * discountPercent / 100
+    }
+}
+
+// What `assertEquals` from kotlin.test does, written by hand:
+fun <T> checkEquals(expected: T, actual: T, name: String) {
+    val verdict = if (expected == actual) "PASS" else "FAIL (expected $expected but was $actual)"
+    println("  $verdict  $name")
+}
+
+fun section2TestByHand() {
+    println("§2")
+    checkEquals(0L, PriceCalculator.total(emptyList()), "empty cart costs nothing")
+    checkEquals(700L, PriceCalculator.total(listOf(Item("tea", 250, 2), Item("cake", 200))), "sums price × quantity")
+    checkEquals(630L, PriceCalculator.total(listOf(Item("tea", 700)), discountPercent = 10), "applies discount")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §3. Anatomy of a real test (see the test file)
+// ───────────────────────────────────────────────────────────────────────────
+//     class PriceCalculatorTest {
+//         @Test
+//         fun `applies a 10 percent discount`() {        // backticks: a sentence as the name
+//             // Arrange — prepare input
+//             val items = listOf(Item("tea", 700))
+//             // Act — call the code under test
+//             val total = PriceCalculator.total(items, discountPercent = 10)
+//             // Assert — check the result
+//             assertEquals(630, total)
+//         }
+//     }
+//
+// kotlin.test cheat-sheet: assertEquals, assertNotEquals, assertTrue, assertFalse,
+// assertNull, assertNotNull (returns the non-null value!), assertContains,
+// assertIs<T> (smart-casts!), assertFailsWith<E> { }, fail("message").
+
+fun section3Anatomy() {
+    println("§3")
+    println("Arrange -> Act -> Assert")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §4. Fakes: replacing slow or unpredictable dependencies
+// ───────────────────────────────────────────────────────────────────────────
+// BookService needs a repository (a database!) and a clock ("now" changes!).
+// Both arrive through the CONSTRUCTOR as interfaces. In production we pass the
+// real ones; in tests we pass FAKES: tiny hand-written in-memory versions.
+//
+// 🧒 Like I'm 5:
+//    Practising fire drills with a REAL fire is a bad idea. You use a pretend
+//    alarm. A fake is a pretend database: it behaves "well enough" and you can
+//    peek inside it to check what happened.
+//
+// Fake  = a working light implementation (in-memory list).  ← prefer these
+// Mock  = an object generated by a library (MockK, Mockito) where you script
+//         "when called with X return Y" and later verify calls. Useful, but
+//         tests full of mocks break whenever internals change.
+
+data class Book(val isbn: String, val title: String, val addedAt: Instant)
+
+interface BookRepository {
+    fun save(book: Book)
+    fun findByIsbn(isbn: String): Book?
+}
+
+class BookService(private val repository: BookRepository, private val clock: Clock) {
+    fun addBook(isbn: String, title: String): Book {
+        require(title.isNotBlank()) { "title must not be blank" }
+        check(repository.findByIsbn(isbn) == null) { "book $isbn already exists" }
+        return Book(isbn, title.trim(), clock.now()).also(repository::save)
+    }
+}
+
+class FakeBookRepository : BookRepository {
+    val saved = mutableListOf<Book>()                        // public, so tests can peek
+    override fun save(book: Book) { saved += book }
+    override fun findByIsbn(isbn: String): Book? = saved.find { it.isbn == isbn }
+}
+
+class FixedClock(private val instant: Instant) : Clock {
+    override fun now(): Instant = instant
+}
+
+fun section4Fakes() {
+    println("§4")
+    val repo = FakeBookRepository()
+    val service = BookService(repo, FixedClock(Instant.parse("2026-11-22T10:00:00Z")))
+    val book = service.addBook("978-1", "  Dune ")
+    checkEquals("Dune", book.title, "title is trimmed")
+    checkEquals(1, repo.saved.size, "book was saved")
+    checkEquals(Instant.parse("2026-11-22T10:00:00Z"), book.addedAt, "uses the clock")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §5. Testing the unhappy path
+// ───────────────────────────────────────────────────────────────────────────
+// Errors are behaviour too. In tests: `assertFailsWith<IllegalArgumentException> { ... }`
+// returns the exception so you can check its message.
+
+fun section5TestingErrors() {
+    println("§5")
+    val failure = runCatching { PriceCalculator.total(emptyList(), discountPercent = 150) }.exceptionOrNull()
+    checkEquals(true, failure is IllegalArgumentException, "rejects discount > 100")
+    println("  message: ${failure?.message}")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §6. Table-driven tests: many cases, one test body
+// ───────────────────────────────────────────────────────────────────────────
+// (JUnit's @ParameterizedTest needs the extra junit-jupiter-params library;
+// a plain loop over a table works everywhere.)
+
+fun section6TableDriven() {
+    println("§6")
+    val cases = mapOf(0 to 1000L, 25 to 750L, 100 to 0L)
+    for ((discount, expected) in cases) {
+        checkEquals(expected, PriceCalculator.total(listOf(Item("x", 1000)), discount), "discount $discount%")
+    }
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §7. Testing coroutines: runTest and virtual time
+// ───────────────────────────────────────────────────────────────────────────
+// `runTest { }` (kotlinx-coroutines-test, a TEST-only dependency) runs suspend
+// code in a test. Its superpower: VIRTUAL TIME. `delay(10.minutes)` inside
+// runTest finishes instantly — the test clock jumps forward instead of waiting.
+//
+//     @Test
+//     fun `retries after a delay`() = runTest {
+//         val result = fetchWithRetry()      // contains delay(30.seconds)
+//         assertEquals("ok", result)         // test still takes milliseconds
+//     }
+
+fun section7Coroutines() {
+    println("§7")
+    println("runTest skips delays with virtual time")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// §8. How this repo's exercises are tested
+// ───────────────────────────────────────────────────────────────────────────
+// Every exercise test looks like this:
+//
+//     abstract class Ex35Spec(private val impl: Ex35) { @Test fun ...() { impl.... } }
+//     class Ex35SolutionTest : Ex35Spec(Ex35Solution)                 // reference answer
+//     @Tag("exercise") class Ex35ExerciseTest : Ex35Spec(Ex35Exercise) // YOUR answer
+//
+// The spec doesn't care WHICH implementation it gets — it's handed one through
+// the constructor. That "hand the dependency in from outside" trick is called
+// DEPENDENCY INJECTION, and it's the whole topic of module 02.
+// 🏗️ Spring's test support (@SpringBootTest, @MockitoBean) is the same idea, automated.
+
+fun section8HowExercisesWork() {
+    println("§8")
+    println("same spec, two implementations: that's dependency injection")
+}
+
+// ⚠️ Gotcha: a test that never fails is worthless. When you write a new test,
+// break the code on purpose once and watch the test go red.
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Recap
+//  • Unit test = Arrange, Act, Assert on one small piece of code.
+//  • kotlin.test: assertEquals, assertTrue, assertNull, assertIs, assertFailsWith…
+//  • Pass dependencies (repository, clock) via the constructor → swap in fakes.
+//  • Test unhappy paths; use tables for many cases; runTest for coroutines.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Output:
+// §1
+// tests are executable examples that never go out of date
+// §2
+//   PASS  empty cart costs nothing
+//   PASS  sums price × quantity
+//   PASS  applies discount
+// §3
+// Arrange -> Act -> Assert
+// §4
+//   PASS  title is trimmed
+//   PASS  book was saved
+//   PASS  uses the clock
+// §5
+//   PASS  rejects discount > 100
+//   message: discount must be 0..100, was 150
+// §6
+//   PASS  discount 0%
+//   PASS  discount 25%
+//   PASS  discount 100%
+// §7
+// runTest skips delays with virtual time
+// §8
+// same spec, two implementations: that's dependency injection
