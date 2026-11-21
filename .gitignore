@@ -1,2 +1,24 @@
-# Project exclude paths
-/out/
+# Build output
+.gradle/
+.kotlin/
+build/
+out/
+
+# IntelliJ: keep shared code style only
+.idea/*
+!.idea/codeStyles/
+*.iml
+
+# Local databases created while running lessons
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets / local config
+.env
+application-local.yml
+
+.DS_Store
+
+# Advent of Code personal inputs (not shareable)
+aoc/src/main/resources/advent_of_code/**/input.txt
