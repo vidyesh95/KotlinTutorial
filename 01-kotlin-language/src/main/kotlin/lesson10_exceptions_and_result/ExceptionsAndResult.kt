@@ -52,8 +52,9 @@ fun section1ThrowAndCatch() {
         println("finally always runs")
     }
 
+    val guests = "0".toInt()        // pretend this came from user input
     try {
-        println(10 / 0)
+        println(10 / guests)
     } catch (e: ArithmeticException) {
         println("caught: ${e.message}")
     }

@@ -122,6 +122,10 @@ fun section3CompanionObjects() {
 //
 // 🏗️ In the real world: `UUID.fromString`, `LocalDate.parse`, `Duration.ofSeconds`.
 
+// ⚠️ Gotcha: a data class's generated `copy()` would let anyone bypass the private
+// constructor (`t.copy(celsius = -999.0)`). 🆕 @ConsistentCopyVisibility makes copy()
+// exactly as private as the constructor.
+@ConsistentCopyVisibility
 data class Temperature private constructor(val celsius: Double) {
     companion object {
         fun ofCelsius(c: Double) = Temperature(c)

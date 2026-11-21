@@ -19,5 +19,6 @@ include(
     ":01-kotlin-language",
     ":02-dependency-injection",
     ":03-sql-fundamentals",
+    ":04-spring-boot-basics",
     ":aoc",
 )

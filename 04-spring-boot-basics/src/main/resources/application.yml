@@ -1,0 +1,54 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Main configuration (lesson 04). Every value can be overridden by:
+#   • a profile file: application-<profile>.yml  (activate: --spring.profiles.active=test)
+#   • environment variables: BOOKSTORE_LOW_STOCK_THRESHOLD=5, SPRING_DATASOURCE_URL=…
+#   • command line: --server.port=9090
+# ─────────────────────────────────────────────────────────────────────────────
+spring:
+  application:
+    name: bookstore-api
+  datasource:
+    # SQLite pragmas can be passed as URL parameters (see module 03, lessons 02 & 12):
+    #  foreign_keys=true   → enforce FOREIGN KEYs (off by default in SQLite!)
+    #  journal_mode=wal    → readers don't block the writer
+    #  busy_timeout=5000   → wait up to 5 s for the write lock instead of failing at once
+    url: jdbc:sqlite:build/bookstore.db?foreign_keys=true&journal_mode=wal&busy_timeout=5000
+    hikari:
+      maximum-pool-size: 4      # SQLite allows ONE writer at a time — a big pool doesn't help
+  mvc:
+    problemdetails:
+      enabled: true             # Spring MVC's own errors (400, 404, 405…) as RFC 9457 Problem Details JSON
+  threads:
+    virtual:
+      enabled: true             # JDK 21+ virtual threads: cheap thread per request
+
+server:
+  shutdown: graceful            # finish in-flight requests before stopping (lesson 08)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, flyway
+  endpoint:
+    health:
+      show-details: always      # fine for learning; restrict in production!
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    description: Kotlin + Spring Boot tutorial bookstore
+
+bookstore:
+  name: Kotlin Books
+  currency: EUR
+  max-page-size: 50
+  low-stock-threshold: 3
+
+# Used by exercise 04 (src/main/kotlin/exercises/ex04).
+exercises:
+  shipping:
+    flat-fee-cents: 499
+    free-above-cents: 3000

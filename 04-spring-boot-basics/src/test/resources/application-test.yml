@@ -1,0 +1,4 @@
+# Active in tests via @ActiveProfiles("test"). Each test context gets its own throw-away database file.
+spring:
+  datasource:
+    url: jdbc:sqlite:${java.io.tmpdir}/bookstore-test-${random.uuid}.db?foreign_keys=true&journal_mode=wal&busy_timeout=5000
