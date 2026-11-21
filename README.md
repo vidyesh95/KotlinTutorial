@@ -17,7 +17,7 @@ Tick the boxes as you go.
 | # | Module | You will learn | Status |
 |---|--------|----------------|--------|
 | 01 | [`01-kotlin-language`](01-kotlin-language) | 35 lessons: types, null safety, functions, OOP, **generics (variance, reified)**, context parameters, coroutines & Flow, DSLs, time/UUID, regex, files, testing | ✅ |
-| 02 | `02-dependency-injection` | DI explained like you're 5, then build your own tiny DI container, then let Spring do it | ⏳ |
+| 02 | [`02-dependency-injection`](02-dependency-injection) | DI explained like you're 5 (the lunchbox), lifetimes, anti-patterns, build your own container, then Spring's `ApplicationContext` | ✅ |
 | 03 | `03-sql-fundamentals` | SQL from zero: joins, indexes, transactions, CTEs, window functions — on SQLite | ⏳ |
 | 04 | `04-spring-boot-basics` | Spring Boot 4 + Kotlin: beans, REST, validation, errors, `JdbcClient`, Flyway, testing | ⏳ |
 | 05 | `05-sqldelight` | Write SQL in `.sq` files, the compiler checks it and generates typed Kotlin | ⏳ |

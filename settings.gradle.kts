@@ -15,6 +15,8 @@ dependencyResolutionManagement {
 rootProject.name = "kotlin-backend-tutorial"
 
 include(
+    ":test-support",
     ":01-kotlin-language",
+    ":02-dependency-injection",
     ":aoc",
 )
