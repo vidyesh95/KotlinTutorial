@@ -18,5 +18,6 @@ include(
     ":test-support",
     ":01-kotlin-language",
     ":02-dependency-injection",
+    ":03-sql-fundamentals",
     ":aoc",
 )
