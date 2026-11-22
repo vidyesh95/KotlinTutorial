@@ -1,0 +1,24 @@
+-- Each `label:` + statement becomes a type-safe Kotlin function on AuthorsQueries.
+-- Change a column name in V1 and this file stops COMPILING — no runtime surprise.
+
+selectAll:
+SELECT id, name
+FROM authors
+ORDER BY id;
+
+selectById:
+SELECT id, name
+FROM authors
+WHERE id = :id;
+
+insert:
+INSERT INTO authors (name)
+VALUES (:name)
+RETURNING id;
+
+bookCountPerAuthor:
+SELECT authors.name, count(books.id) AS book_count, coalesce(sum(books.stock), 0) AS total_stock
+FROM authors
+LEFT JOIN books ON books.author_id = authors.id
+GROUP BY authors.id
+ORDER BY authors.name;

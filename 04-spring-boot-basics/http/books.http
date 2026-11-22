@@ -1,0 +1,128 @@
+### ─────────────────────────────────────────────────────────────────────────────
+### Bookstore API — every endpoint, happy paths and error cases.
+### IntelliJ: open this file and click ▶ next to a request (app must be running:
+###   ./gradlew :04-spring-boot-basics:bootRun).
+### Requests further down change data (create/patch/delete/order). Delete
+### build/bookstore.db and restart to get the seed data back.
+### ─────────────────────────────────────────────────────────────────────────────
+
+@host = http://localhost:8080
+
+### ── Books: read (lesson 02) ───────────────────────────────────────────────────
+
+### List books, first page of 2
+GET {{host}}/api/books?page=0&size=2
+
+### One book
+GET {{host}}/api/books/1
+
+### 404 — unknown book (Problem Details JSON, lesson 03)
+GET {{host}}/api/books/999
+
+### 400 — negative page (method validation on @RequestParam)
+GET {{host}}/api/books?page=-1
+
+### ── Books: write ─────────────────────────────────────────────────────────────
+
+### 201 Created + Location header
+POST {{host}}/api/books
+Content-Type: application/json
+
+{"title": "Children of Dune", "authorId": 1, "isbn": "9780593098240", "priceCents": 1399}
+
+### 400 — validation errors per field
+POST {{host}}/api/books
+Content-Type: application/json
+
+{"title": " ", "authorId": 1, "isbn": "123", "priceCents": -5}
+
+### 400 — missing required field (Jackson + Kotlin non-null)
+POST {{host}}/api/books
+Content-Type: application/json
+
+{"authorId": 1}
+
+### 400 — not JSON at all
+POST {{host}}/api/books
+Content-Type: application/json
+
+not json
+
+### 409 — duplicate ISBN
+POST {{host}}/api/books
+Content-Type: application/json
+
+{"title": "Dune again", "authorId": 1, "isbn": "9780441172719", "priceCents": 100}
+
+### 404 — unknown author
+POST {{host}}/api/books
+Content-Type: application/json
+
+{"title": "Ghost", "authorId": 42, "isbn": "9999999999999", "priceCents": 100}
+
+### PATCH — change only the price
+PATCH {{host}}/api/books/3
+Content-Type: application/json
+
+{"priceCents": 999}
+
+### 405 — PUT is not supported (see the Allow header)
+PUT {{host}}/api/books/1
+Content-Type: application/json
+
+{}
+
+### DELETE — 204 No Content (book 6 = the one created above)
+DELETE {{host}}/api/books/6
+
+### ── Orders: transactions (lesson 06) ─────────────────────────────────────────
+
+### 201 — order 2 × Dune + 1 × Pride and Prejudice
+POST {{host}}/api/orders
+Content-Type: application/json
+
+{"customerEmail": "ada@example.com", "lines": [{"bookId": 1, "quantity": 2}, {"bookId": 3, "quantity": 1}]}
+
+### 409 — Emma is out of stock → the whole order rolls back (Dune's stock unchanged)
+POST {{host}}/api/orders
+Content-Type: application/json
+
+{"customerEmail": "bob@example.com", "lines": [{"bookId": 1, "quantity": 1}, {"bookId": 4, "quantity": 1}]}
+
+### Check: Dune's stock after the failed order
+GET {{host}}/api/books/1
+
+### 400 — nested validation errors (lines[0].bookId, lines[0].quantity, customerEmail)
+POST {{host}}/api/orders
+Content-Type: application/json
+
+{"customerEmail": "nope", "lines": [{"bookId": 0, "quantity": 500}]}
+
+### ── Actuator (lesson 08) ─────────────────────────────────────────────────────
+
+### Which actuator endpoints are exposed
+GET {{host}}/actuator
+
+### Health with all components (db, diskSpace, lowStock, …)
+GET {{host}}/actuator/health
+
+### Liveness probe
+GET {{host}}/actuator/health/liveness
+
+### Readiness probe
+GET {{host}}/actuator/health/readiness
+
+### Info
+GET {{host}}/actuator/info
+
+### Flyway migrations applied
+GET {{host}}/actuator/flyway
+
+### HTTP request metrics
+GET {{host}}/actuator/metrics/http.server.requests
+
+### Only the 409 responses of POST /api/orders
+GET {{host}}/actuator/metrics/http.server.requests?tag=uri:/api/orders&tag=status:409
+
+### Connection pool usage
+GET {{host}}/actuator/metrics/hikaricp.connections.active

@@ -20,5 +20,6 @@ include(
     ":02-dependency-injection",
     ":03-sql-fundamentals",
     ":04-spring-boot-basics",
+    ":05-sqldelight",
     ":aoc",
 )
