@@ -1,0 +1,3 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:${java.io.tmpdir}/bookstore-security-test-${random.uuid}.db?foreign_keys=true&journal_mode=wal&busy_timeout=5000

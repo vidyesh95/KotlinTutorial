@@ -1,0 +1,116 @@
+### ===========================================================================
+### 06 — Spring Security & Better-Auth HTTP Client Requests
+### Run the server first: ./gradlew :06-spring-security-auth:bootRun
+### ===========================================================================
+
+@baseUrl = http://localhost:8080
+
+### 1. Public catalog: browse books without authentication (200 OK)
+GET {{baseUrl}}/api/books
+
+### 2. Attempt protected action without authentication (401 Problem Details)
+POST {{baseUrl}}/api/books
+Content-Type: application/json
+
+{
+  "title": "Unauthorized Book",
+  "authorId": 1,
+  "isbn": "9781234567890",
+  "priceCents": 999,
+  "stock": 5
+}
+
+### 3. Sign in as Alice Customer (saves token and sets cookie)
+# @name aliceLogin
+POST {{baseUrl}}/api/auth/sign-in
+Content-Type: application/json
+
+{
+  "email": "alice@bookstore.test",
+  "password": "password123"
+}
+
+> {%
+    client.global.set("alice_token", response.body.token);
+%}
+
+### 4. Inspect current session as Alice using Bearer token (200 OK)
+GET {{baseUrl}}/api/auth/session
+Authorization: Bearer {{alice_token}}
+
+### 5. Inspect current session using cookie (if client supports automatic cookie jar)
+GET {{baseUrl}}/api/auth/me
+
+### 6. Place an order as authenticated Alice (201 Created)
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{alice_token}}
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "bookId": 1,
+      "quantity": 2
+    }
+  ]
+}
+
+### 7. View Alice's personal orders (200 OK)
+GET {{baseUrl}}/api/orders/mine
+Authorization: Bearer {{alice_token}}
+
+### 8. Alice attempts to perform Admin action (403 Forbidden)
+POST {{baseUrl}}/api/books
+Authorization: Bearer {{alice_token}}
+Content-Type: application/json
+
+{
+  "title": "Hacker Book",
+  "authorId": 1,
+  "isbn": "9780000000001",
+  "priceCents": 100,
+  "stock": 1
+}
+
+### 9. Sign in as Admin
+# @name adminLogin
+POST {{baseUrl}}/api/auth/sign-in
+Content-Type: application/json
+
+{
+  "email": "admin@bookstore.test",
+  "password": "admin123"
+}
+
+> {%
+    client.global.set("admin_token", response.body.token);
+%}
+
+### 10. Admin adds a new book to catalog (201 Created)
+POST {{baseUrl}}/api/books
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "title": "Hyperion",
+  "authorId": 1,
+  "isbn": "9780553283686",
+  "priceCents": 1599,
+  "stock": 8
+}
+
+### 11. Admin views all bookstore orders (200 OK)
+GET {{baseUrl}}/api/admin/orders
+Authorization: Bearer {{admin_token}}
+
+### 12. View Alice's active sessions / devices
+GET {{baseUrl}}/api/auth/sessions
+Authorization: Bearer {{alice_token}}
+
+### 13. Alice signs out (invalidates database session token)
+POST {{baseUrl}}/api/auth/sign-out
+Authorization: Bearer {{alice_token}}
+
+### 14. Subsequent request with Alice's revoked token fails (401 Problem Details)
+GET {{baseUrl}}/api/auth/session
+Authorization: Bearer {{alice_token}}

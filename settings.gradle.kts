@@ -21,5 +21,6 @@ include(
     ":03-sql-fundamentals",
     ":04-spring-boot-basics",
     ":05-sqldelight",
+    ":06-spring-security-auth",
     ":aoc",
 )

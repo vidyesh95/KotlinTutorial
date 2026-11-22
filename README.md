@@ -21,7 +21,7 @@ Tick the boxes as you go.
 | 03 | [`03-sql-fundamentals`](03-sql-fundamentals) | SQL from zero on SQLite (🐘 Postgres notes): keys, joins, aggregation, CTEs, window functions, indexes & query plans, upsert/JSON/dates, normalization, JDBC, transactions, N+1, migrations | ✅ |
 | 04 | [`04-spring-boot-basics`](04-spring-boot-basics) | Spring Boot 4.2 bookstore API: REST, validation & Problem Details, config & profiles, `JdbcClient` + Flyway on SQLite, `@Transactional`, testing (MockMvc, slices), Actuator | ✅ |
 | 05 | [`05-sqldelight`](05-sqldelight) | SQL in `.sq` files checked at compile time (sqlx-style), migrations as single source of truth for SQLDelight + Flyway, adapters, Flows, Spring `@Transactional` integration | ✅ |
-| 06 | `06-spring-security-auth` | Sessions, password hashing, filter chain, better-auth `user/session/account/verification` schema | ⏳ |
+| 06 | [`06-spring-security-auth`](06-spring-security-auth) | Sessions, password hashing, filter chain, better-auth `user/session/account/verification` schema | ✅ |
 | 07 | `07-spring-ai` | `ChatClient`, structured output, tool calling, chat memory, RAG — with a local Ollama model | ⏳ |
 | 08 | `08-capstone` | Everything together + pagination, idempotency, caching, background jobs, observability | ⏳ |
 | — | [`aoc`](aoc) | Advent of Code playground for extra practice | ✅ |

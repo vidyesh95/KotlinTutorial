@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: bookstore-security-api
+  datasource:
+    url: jdbc:sqlite:build/bookstore-security.db?foreign_keys=true&journal_mode=wal&busy_timeout=5000
+    hikari:
+      maximum-pool-size: 4
+  mvc:
+    problemdetails:
+      enabled: true
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8080
+  shutdown: graceful
+
+bookstore:
+  name: Kotlin Secured Books
+  currency: EUR
