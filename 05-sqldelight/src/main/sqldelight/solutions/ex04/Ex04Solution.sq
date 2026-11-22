@@ -1,0 +1,4 @@
+addStock:
+UPDATE books
+SET stock = stock + :quantity
+WHERE id = :id;

@@ -1,0 +1,44 @@
+-- Migration V1. SQLDelight reads this at COMPILE time (to know the schema and check every query),
+-- and Flyway runs a cleaned copy at RUNTIME (lesson 05). Never edit it after it ran — add V4, V5…
+--
+-- `AS <Kotlin type>` is SQLDelight syntax: "this column is a kotlin.Int / Instant / enum in Kotlin".
+-- SQLDelight strips it from the copy Flyway runs, because SQLite itself doesn't understand it.
+import bookstore.domain.OrderStatus;
+import kotlin.Boolean;
+import kotlin.Int;
+import kotlin.time.Instant;
+
+CREATE TABLE authors (
+    id   INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE books (
+    id             INTEGER PRIMARY KEY,
+    title          TEXT NOT NULL,
+    author_id      INTEGER NOT NULL REFERENCES authors (id),
+    isbn           TEXT NOT NULL UNIQUE,
+    price_cents    INTEGER AS Int NOT NULL CHECK (price_cents >= 0),
+    stock          INTEGER AS Int NOT NULL DEFAULT 0 CHECK (stock >= 0),
+    published_year INTEGER AS Int,
+    in_print       INTEGER AS Boolean NOT NULL DEFAULT 1,
+    created_at     TEXT AS Instant NOT NULL
+);
+
+CREATE INDEX books_author_id_idx ON books (author_id);
+
+CREATE TABLE orders (
+    id             INTEGER PRIMARY KEY,
+    customer_email TEXT NOT NULL,
+    status         TEXT AS OrderStatus NOT NULL,
+    total_cents    INTEGER AS Int NOT NULL,
+    created_at     TEXT AS Instant NOT NULL
+);
+
+CREATE TABLE order_items (
+    order_id         INTEGER NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
+    book_id          INTEGER NOT NULL REFERENCES books (id),
+    quantity         INTEGER AS Int NOT NULL CHECK (quantity > 0),
+    unit_price_cents INTEGER AS Int NOT NULL,
+    PRIMARY KEY (order_id, book_id)
+);

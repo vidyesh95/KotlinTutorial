@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: sqldelight-bookstore
+  datasource:
+    url: jdbc:sqlite:build/sqldelight-bookstore.db?foreign_keys=true&journal_mode=wal&busy_timeout=5000
+    hikari:
+      maximum-pool-size: 4
+  # Flyway runs build/generated/flyway/db/migration/V*.sql — SQLDelight's plain-SQL copies of the .sqm files.
+  flyway:
+    locations: classpath:db/migration

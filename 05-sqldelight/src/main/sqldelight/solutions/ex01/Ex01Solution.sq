@@ -1,0 +1,19 @@
+allTitles:
+SELECT title
+FROM books
+ORDER BY title;
+
+booksCheaperThan:
+SELECT id, title, price_cents
+FROM books
+WHERE price_cents < :maxCents
+ORDER BY price_cents;
+
+countBooks:
+SELECT count(*)
+FROM books;
+
+insertAuthor:
+INSERT INTO authors (name)
+VALUES (:name)
+RETURNING id;

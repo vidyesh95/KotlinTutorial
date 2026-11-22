@@ -1,0 +1,34 @@
+insertOrder:
+INSERT INTO orders (customer_email, status, total_cents, created_at)
+VALUES (:customerEmail, :status, :totalCents, :createdAt)
+RETURNING id;
+
+-- Copies the CURRENT price into the line (price snapshot, module 03 lesson 10).
+insertItem:
+INSERT INTO order_items (order_id, book_id, quantity, unit_price_cents)
+SELECT :orderId, id, :quantity, price_cents
+FROM books
+WHERE id = :bookId;
+
+selectById:
+SELECT *
+FROM orders
+WHERE id = :id;
+
+selectItems:
+SELECT order_items.book_id, books.title, order_items.quantity, order_items.unit_price_cents
+FROM order_items
+JOIN books ON books.id = order_items.book_id
+WHERE order_items.order_id = :orderId
+ORDER BY order_items.book_id;
+
+updateStatus:
+UPDATE orders
+SET status = :status
+WHERE id = :id;
+
+countByStatus:
+SELECT status, count(*) AS orders, sum(total_cents) AS revenue_cents
+FROM orders
+GROUP BY status
+ORDER BY status;

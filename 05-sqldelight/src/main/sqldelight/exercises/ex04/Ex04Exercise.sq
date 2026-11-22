@@ -1,0 +1,6 @@
+-- Exercise 04 — helper query used by YOUR Kotlin in exercises/ex04/Ex04.kt. This one is GIVEN
+-- (not a placeholder): the exercise is the transaction logic, not the SQL.
+addStock:
+UPDATE books
+SET stock = stock + :quantity
+WHERE id = :id;

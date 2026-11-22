@@ -1,0 +1,34 @@
+-- Exercise 02 — parameters, IN ?, NULLs and aggregates   (lesson: lesson02_queries_and_types)
+-- Placeholders compile with the final signature but return nothing. Rewrite the SQL; keep labels,
+-- parameter names and result columns.
+-- Check: ./gradlew :05-sqldelight:exercises --tests 'exercises.ex02*'
+
+-- 02.1 TODO: id and title of every book written by the author called :authorName, by title A → Z.
+--      (JOIN books with authors.)
+booksByAuthor:
+SELECT books.id, books.title
+FROM books
+JOIN authors ON authors.id = books.author_id
+WHERE authors.name = :authorName AND 0
+ORDER BY books.title;
+
+-- 02.2 TODO: titles of the books whose id is in the given collection, ordered by id.
+titlesByIds:
+SELECT title
+FROM books
+WHERE id IN ? AND 0
+ORDER BY id;
+
+-- 02.3 TODO: title and published_year (may be NULL!) of every book by author :authorId, ordered by id.
+yearsForAuthor:
+SELECT title, published_year
+FROM books
+WHERE author_id = :authorId AND 0
+ORDER BY id;
+
+-- 02.4 TODO: cheapest, dearest and average price_cents over ALL books, as columns
+--      cheapest, dearest, average. (Over an empty table these are NULL — note the nullable types.)
+priceStats:
+SELECT min(price_cents) AS cheapest, max(price_cents) AS dearest, avg(price_cents) AS average
+FROM books
+WHERE 0;

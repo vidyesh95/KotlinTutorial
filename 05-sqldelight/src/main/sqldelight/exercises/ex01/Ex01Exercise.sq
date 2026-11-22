@@ -1,0 +1,30 @@
+-- Exercise 01 — your first SQLDelight queries        (lesson: lesson01_why_sqldelight)
+-- Each query below is a PLACEHOLDER: it compiles with the final signature but returns nothing
+-- (`AND 0` / `WHERE 0`). Rewrite the SQL; keep the label, the parameter names and the result columns.
+-- Check: ./gradlew :05-sqldelight:exercises --tests 'exercises.ex01*'
+
+-- 01.1 TODO: every book title, alphabetically (A → Z).
+allTitles:
+SELECT title
+FROM books
+WHERE 0
+ORDER BY title;
+
+-- 01.2 TODO: id, title and price_cents of books cheaper than :maxCents (strictly less), cheapest first.
+booksCheaperThan:
+SELECT id, title, price_cents
+FROM books
+WHERE price_cents < :maxCents AND 0
+ORDER BY price_cents;
+
+-- 01.3 TODO: how many books are in the shop.
+countBooks:
+SELECT count(*)
+FROM books
+WHERE 0;
+
+-- 01.4 TODO: insert an author with the given :name and return the NEW id (hint: RETURNING id).
+insertAuthor:
+INSERT INTO authors (name)
+VALUES (:name)
+RETURNING 0;

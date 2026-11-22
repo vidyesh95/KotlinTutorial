@@ -1,0 +1,22 @@
+booksByAuthor:
+SELECT books.id, books.title
+FROM books
+JOIN authors ON authors.id = books.author_id
+WHERE authors.name = :authorName
+ORDER BY books.title;
+
+titlesByIds:
+SELECT title
+FROM books
+WHERE id IN ?
+ORDER BY id;
+
+yearsForAuthor:
+SELECT title, published_year
+FROM books
+WHERE author_id = :authorId
+ORDER BY id;
+
+priceStats:
+SELECT min(price_cents) AS cheapest, max(price_cents) AS dearest, avg(price_cents) AS average
+FROM books;

@@ -1,0 +1,62 @@
+-- Queries about books. SQLDelight checks every statement against the schema from the migrations
+-- and generates Kotlin functions with typed parameters and typed results.
+
+-- A JOIN with an extra column → SQLDelight generates a NEW data class `SelectAll`
+-- (or you pass your own mapper lambda — lesson 02).
+selectAll:
+SELECT books.id, books.title, authors.name AS author_name, books.isbn, books.price_cents, books.stock, books.published_year
+FROM books
+JOIN authors ON authors.id = books.author_id
+ORDER BY books.id;
+
+selectById:
+SELECT books.id, books.title, authors.name AS author_name, books.isbn, books.price_cents, books.stock, books.published_year
+FROM books
+JOIN authors ON authors.id = books.author_id
+WHERE books.id = :id;
+
+-- `IN ?` → the generated function takes a Collection<Long>.
+selectByIds:
+SELECT id, title, price_cents
+FROM books
+WHERE id IN ?
+ORDER BY id;
+
+search:
+SELECT id, title
+FROM books
+WHERE title LIKE '%' || :text || '%'
+ORDER BY title;
+
+-- Selecting `books.*` reuses the table's generated data class `Books`.
+inPrintSince:
+SELECT *
+FROM books
+WHERE in_print AND published_year >= :year
+ORDER BY published_year;
+
+lowStock:
+SELECT id, title, stock
+FROM books
+WHERE stock <= :threshold
+ORDER BY stock, id;
+
+insert:
+INSERT INTO books (title, author_id, isbn, price_cents, stock, published_year, created_at)
+VALUES (:title, :authorId, :isbn, :priceCents, :stock, :publishedYear, :createdAt)
+RETURNING id;
+
+updatePrice:
+UPDATE books
+SET price_cents = :priceCents
+WHERE id = :id;
+
+-- Atomic stock check + decrement (module 04, lesson 06). Returns rows changed (0 = not enough).
+takeStock:
+UPDATE books
+SET stock = stock - :quantity
+WHERE id = :id AND stock >= :quantity;
+
+delete:
+DELETE FROM books
+WHERE id = :id;
